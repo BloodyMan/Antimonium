@@ -1,1 +1,2 @@
+#define FIRE_LAYER MOB_LAYER + 0.9
 #define FIRE_SPREAD_PROB 15
