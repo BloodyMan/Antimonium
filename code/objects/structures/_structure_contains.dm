@@ -105,14 +105,15 @@
 
 /obj/structure/MiddleClickedOn(var/mob/clicker)
 	if(IsAdjacentTo(src, clicker))
-		if(contains && open)
+		if((flags & FLAG_FLAT_SURFACE) || (contains && open))
 			new /obj/ui/radial_menu(clicker, src)
 			return TRUE
-		if(flags & FLAG_FLAT_SURFACE)
-			var/turf/turf = get_turf(src)
-			if(istype(turf))
-				return turf.MiddleClickedOn(clicker)
 	. = ..()
 
 /obj/structure/GetRadialMenuContents(var/mob/user)
-	return contains ? contains : ..(user)
+	if(contains && open)
+		return contains
+	var/turf/turf = get_turf(src)
+	if(istype(turf))
+		return (	turf.GetRadialMenuContents(user)-src)
+	return list()

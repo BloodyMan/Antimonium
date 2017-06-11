@@ -45,13 +45,19 @@
 	UpdateAppearance()
 
 /obj/ui/radial_button/atom/proc/UpdateAppearance()
-	appearance = refer_atom
+	var/obj/item/prop = refer_atom
+	if(istype(prop))
+		appearance = prop.GetInvIcon()
+		draw_shadow_underlay = TRUE
+	else
+		appearance = refer_atom
+		var/atom/movable/atom = refer_atom
+		if(!istype(atom) || atom.draw_shadow_underlay)
+			draw_shadow_underlay = TRUE
+
 	plane = parent_menu.plane
 	layer = parent_menu.layer + 1
-	var/atom/movable/object = refer_atom
-	if(!istype(object) || isnull(object.draw_shadow_underlay))
-		draw_shadow_underlay = TRUE
-		UpdateShadowUnderlay()
+	UpdateShadowUnderlay()
 
 /obj/ui/radial_button/atom/LeftClickedOn(var/mob/clicker, var/slot = SLOT_LEFT_HAND)
 	. = ..()
@@ -104,11 +110,11 @@
 	source_atom_display.appearance = source_atom
 	source_atom_display.plane = plane
 	source_atom_display.layer = layer+3
+
 	var/atom/movable/object = source_atom
 	if(!istype(object) || isnull(object.draw_shadow_underlay))
 		source_atom_display.draw_shadow_underlay = TRUE
 		source_atom_display.UpdateShadowUnderlay()
-
 
 	close_button = new(_owner, src)
 
