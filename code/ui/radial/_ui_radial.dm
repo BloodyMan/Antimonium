@@ -48,7 +48,7 @@
 	var/list/buttons = list()
 	var/obj/ui/radial_button/close/close_button
 	var/obj/ui/source_atom_display
-	var/button_type = /obj/ui/radial_button/atom
+	var/button_type = /obj/ui/radial_button/show_atom
 	var/menu_type = RADIAL_MENU_DEFAULT
 
 /obj/ui/radial_menu/proc/ReceiveInput(var/thing_input)
@@ -63,8 +63,9 @@
 	buttons.Cut()
 	if(owner && owner.radial_menu == src)
 		owner.radial_menu = null
-	source_atom.radial_menus -= src
-	source_atom = null
+	if(source_atom)
+		source_atom.radial_menus -= src
+		source_atom = null
 	. = ..()
 
 /obj/ui/radial_menu/New(var/mob/_owner, var/list/_source_atom)
@@ -98,8 +99,13 @@
 	UpdateButtons()
 
 /obj/ui/radial_menu/proc/UpdateSourceAtomAppearance()
+
 	source_atom_display.name = source_atom.name
-	source_atom_display.appearance = source_atom
+	if(istype(source_atom, /obj/item))
+		var/obj/item/prop = source_atom
+		source_atom_display.appearance = prop.GetInvIcon()
+	else
+		source_atom_display.appearance = source_atom
 	source_atom_display.plane = plane
 	source_atom_display.layer = layer+3
 

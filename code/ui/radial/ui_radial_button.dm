@@ -12,8 +12,7 @@
 /obj/ui/radial_button/New(var/mob/_owner, var/obj/ui/radial_menu/_parent_menu)
 	..(_owner)
 	parent_menu = _parent_menu
-	plane = parent_menu.plane
-	layer = parent_menu.layer + 2
+	UpdateAppearance()
 
 /obj/ui/radial_button/proc/UpdateAppearance()
 	plane = parent_menu.plane
