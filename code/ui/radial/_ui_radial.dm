@@ -5,7 +5,33 @@
 	QDel(radial_menu)
 	. = ..()
 
+/atom
+	var/list/radial_menus = list() //todo event framework
+
+/atom/Entered()
+	. = ..()
+
+	if(radial_menus.len)
+		spawn(1)
+			if(!radial_menus.len)
+				return
+			for(var/thing in radial_menus)
+				var/obj/ui/radial_menu/menu = thing
+				menu.UpdateButtons()
+
+/atom/Exited()
+	. = ..()
+
+	if(radial_menus.len)
+		spawn(1)
+			if(!radial_menus.len)
+				return
+			for(var/thing in radial_menus)
+				var/obj/ui/radial_menu/menu = thing
+				menu.UpdateButtons()
+
 /obj/ui/radial_button
+	screen_loc = "CENTER,CENTER"
 	var/obj/ui/radial_menu/parent_menu
 
 /obj/ui/radial_button/close/LeftClickedOn(var/mob/clicker, var/slot = SLOT_LEFT_HAND)
@@ -79,6 +105,7 @@
 /obj/ui/radial_menu
 	name = "Radial Menu"
 	icon = 'icons/images/ui_radial_menu.dmi'
+	screen_loc = "CENTER,CENTER"
 
 	var/atom/source_atom
 	var/screen_loc_x
@@ -96,6 +123,8 @@
 	buttons.Cut()
 	if(owner && owner.radial_menu == src)
 		owner.radial_menu = null
+	source_atom.radial_menus -= src
+	source_atom = null
 	. = ..()
 
 /obj/ui/radial_menu/New(var/mob/_owner, var/list/_source_atom)
@@ -105,16 +134,9 @@
 		return
 
 	source_atom = _source_atom
+	source_atom.radial_menus += src
 	source_atom_display = new(_owner)
-	source_atom_display.name = source_atom.name
-	source_atom_display.appearance = source_atom
-	source_atom_display.plane = plane
-	source_atom_display.layer = layer+3
-
-	var/atom/movable/object = source_atom
-	if(!istype(object) || isnull(object.draw_shadow_underlay))
-		source_atom_display.draw_shadow_underlay = TRUE
-		source_atom_display.UpdateShadowUnderlay()
+	UpdateSourceAtomAppearance()
 
 	close_button = new(_owner, src)
 
@@ -134,6 +156,17 @@
 	source_atom_display.screen_loc = "[screen_loc_x],[screen_loc_y]"
 
 	UpdateButtons()
+
+/obj/ui/radial_menu/proc/UpdateSourceAtomAppearance()
+	source_atom_display.name = source_atom.name
+	source_atom_display.appearance = source_atom
+	source_atom_display.plane = plane
+	source_atom_display.layer = layer+3
+
+	var/atom/movable/object = source_atom
+	if(!istype(object) || isnull(object.draw_shadow_underlay))
+		source_atom_display.draw_shadow_underlay = TRUE
+		source_atom_display.UpdateShadowUnderlay()
 
 /obj/ui/radial_menu/proc/UpdateButtons()
 
@@ -163,5 +196,7 @@
 		use_angle += angle_step
 		if(use_angle > 360)
 			use_angle -= 360
+
+	UpdateSourceAtomAppearance()
 
 	owner.RefreshUI()

@@ -193,6 +193,7 @@
 #include "code\objects\effects\splat.dm"
 #include "code\objects\effects\title.dm"
 #include "code\objects\items\_item.dm"
+#include "code\objects\items\book.dm"
 #include "code\objects\items\horseshoe.dm"
 #include "code\objects\items\level.dm"
 #include "code\objects\items\mold.dm"
