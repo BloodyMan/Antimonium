@@ -8,6 +8,13 @@
 /atom
 	var/list/radial_menus = list() //todo event framework
 
+/atom/Destroy()
+	. = ..()
+	if(radial_menus.len)
+		for(var/thing in radial_menus)
+			var/obj/ui/radial_menu/menu = thing
+			menu.UpdateButtons()
+
 /atom/Entered()
 	. = ..()
 
@@ -30,78 +37,6 @@
 				var/obj/ui/radial_menu/menu = thing
 				menu.UpdateButtons()
 
-/obj/ui/radial_button
-	screen_loc = "CENTER,CENTER"
-	var/obj/ui/radial_menu/parent_menu
-
-/obj/ui/radial_button/close/LeftClickedOn(var/mob/clicker, var/slot = SLOT_LEFT_HAND)
-	. = ..()
-	if(.)
-		QDel(parent_menu)
-
-/obj/ui/radial_button/Destroy()
-	parent_menu = null
-	. = ..()
-
-/obj/ui/radial_button/New(var/mob/_owner, var/obj/ui/radial_menu/_parent_menu)
-	..(_owner)
-	parent_menu = _parent_menu
-	plane = parent_menu.plane
-	layer = parent_menu.layer + 2
-
-/obj/ui/radial_button/close
-	name = "Close"
-	icon = 'icons/images/ui_radial_close.dmi'
-
-/obj/ui/radial_button/close/New(var/mob/_owner, var/obj/ui/radial_menu/_parent_menu)
-	..(_owner, _parent_menu)
-	layer++
-
-/obj/ui/radial_button/atom
-	var/atom/refer_atom
-
-/obj/ui/radial_button/atom/Destroy()
-	refer_atom = null
-	. = ..()
-
-/obj/ui/radial_button/atom/New(var/mob/_owner, var/obj/ui/radial_menu/_parent_menu, var/atom/_refer_atom)
-	refer_atom = _refer_atom
-	name = refer_atom.name
-	..(_owner, _parent_menu)
-	UpdateAppearance()
-
-/obj/ui/radial_button/atom/proc/UpdateAppearance()
-	var/obj/item/prop = refer_atom
-	if(istype(prop))
-		appearance = prop.GetInvIcon()
-		draw_shadow_underlay = TRUE
-	else
-		appearance = refer_atom
-		var/atom/movable/atom = refer_atom
-		if(!istype(atom) || atom.draw_shadow_underlay)
-			draw_shadow_underlay = TRUE
-
-	plane = parent_menu.plane
-	layer = parent_menu.layer + 1
-	UpdateShadowUnderlay()
-
-/obj/ui/radial_button/atom/LeftClickedOn(var/mob/clicker, var/slot = SLOT_LEFT_HAND)
-	. = ..()
-	if(.  && refer_atom && !Deleted(refer_atom) && IsAdjacentTo(clicker, refer_atom))
-		refer_atom.LeftClickedOn(clicker, slot)
-	parent_menu.UpdateButtons()
-
-/obj/ui/radial_button/atom/RightClickedOn(var/mob/clicker, var/slot = SLOT_RIGHT_HAND)
-	. = ..()
-	if(.  && refer_atom && !Deleted(refer_atom) && IsAdjacentTo(clicker, refer_atom))
-		refer_atom.RightClickedOn(clicker, slot)
-	parent_menu.UpdateButtons()
-
-/obj/ui/radial_button/atom/MiddleClickedOn(var/mob/clicker)
-	. = ..()
-	if(.  && refer_atom && !Deleted(refer_atom) && IsAdjacentTo(clicker, refer_atom))
-		refer_atom.MiddleClickedOn(clicker)
-
 /obj/ui/radial_menu
 	name = "Radial Menu"
 	icon = 'icons/images/ui_radial_menu.dmi'
@@ -113,6 +48,11 @@
 	var/list/buttons = list()
 	var/obj/ui/radial_button/close/close_button
 	var/obj/ui/source_atom_display
+	var/button_type = /obj/ui/radial_button/atom
+	var/menu_type = RADIAL_MENU_DEFAULT
+
+/obj/ui/radial_menu/proc/ReceiveInput(var/thing_input)
+	return
 
 /obj/ui/radial_menu/Destroy()
 	QDel(source_atom_display)
@@ -168,23 +108,26 @@
 		source_atom_display.draw_shadow_underlay = TRUE
 		source_atom_display.UpdateShadowUnderlay()
 
+/obj/ui/radial_menu/proc/GetAdditionalMenuData()
+	return
+
 /obj/ui/radial_menu/proc/UpdateButtons()
 
-	var/list/displaying = source_atom.GetRadialMenuContents(owner)
+	var/list/displaying = source_atom.GetRadialMenuContents(owner, menu_type, GetAdditionalMenuData())
 
 	buttons -= close_button
 
 	for(var/thing in buttons)
-		var/obj/ui/radial_button/atom/button = thing
-		if(locate("\ref[button.refer_atom]") in displaying)
-			displaying -= button.refer_atom
+		var/obj/ui/radial_button/button = thing
+		if(locate("\ref[button.GetAtom()]") in displaying)
+			displaying -= button.GetAtom()
 			button.UpdateAppearance()
 			continue
 		buttons -= button
 		QDel(button)
 
 	for(var/thing in displaying)
-		buttons += new /obj/ui/radial_button/atom(owner, src, thing)
+		buttons += new button_type(owner, src, thing)
 
 	buttons.Insert(1, close_button)
 
