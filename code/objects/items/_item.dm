@@ -59,14 +59,6 @@
 		else
 			name = "[initial(name)]"
 
-// this should be called last in the supercall sequence as it should update its holder last (if it has one)
-/obj/item/UpdateIcon()
-	..() // hence why we do the supercall to /obj/UpdateIcon() first, then run the holder update code
-	var/mob/holder = loc
-	if(istype(holder))
-		holder.UpdateInventory()
-		holder.UpdateIcon()
-
 /obj/item/proc/Eaten(var/mob/user)
 	return FALSE
 

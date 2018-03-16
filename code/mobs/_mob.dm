@@ -109,7 +109,7 @@
 	if(fire_intensity >= MAX_FIRE_INTENSITY)
 		Die("the hungry flames")
 		// create ashes
-		// Light off
+		KillLight()
 		QDel(src, "burned up")
 	else if(IsOnFire() && fire_intensity)
 		for(var/invslot in inventory_slots)

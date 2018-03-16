@@ -24,13 +24,12 @@
 		overlays -= fire_overlay
 
 		if(!isnull(fstate))
-			fire_overlay = image(icon = 'icons/images/fire.dmi', icon_state = fstate, layer = EFFECTS_LAYER)
+			fire_overlay = image(icon = 'icons/images/fire.dmi', icon_state = fstate)
 			fire_overlay.appearance_flags = RESET_COLOR
 			overlays += fire_overlay
 		else
 			fire_overlay = null
 
-		UpdateIcon()
 
 /atom/proc/CanIgnite()
 	return IsFlammable()
@@ -42,7 +41,7 @@
 	if(CanIgnite() && !IsOnFire())
 		burning_atoms |= src
 		on_fire = TRUE
-		// Light on
+		SetFireLight()
 		UpdateFireOverlay()
 		return TRUE
 	return FALSE

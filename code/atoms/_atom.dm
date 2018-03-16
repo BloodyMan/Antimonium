@@ -101,12 +101,23 @@
 	return 1
 
 /atom/proc/SetFireLight()
-	// stubbed off for now
-	return
+	if(light_obj)
+		KillLight()
+	light_color = BRIGHT_ORANGE
+	light_power = 10
+	light_range = 5
+	SetLight()
 
 /atom/proc/ResetLights()
-	// and here
-	return
+	var/lit
+	if(light_obj)
+		lit = TRUE
+		KillLight()
+	light_color = initial(light_color)
+	light_power = initial(light_power)
+	light_range = initial(light_range)
+	if(lit && (light_power || light_color || light_range))
+		SetLight()
 
 /atom/proc/SmearWith(var/datum/material/smearing, var/amount)
 	return
