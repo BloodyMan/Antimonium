@@ -1,9 +1,6 @@
 /obj/item/limb
 	name = "limb"
 	icon = 'icons/mobs/limbs/_default.dmi'
-	contact_size = 5
-	weight = 10
-	sharpness = 1
 	attack_verbs = list("bludgeons", "batters", "whacks")
 	default_material_path = /datum/material/meat
 	flags = FLAG_SIMULATED | FLAG_IS_EDIBLE | FLAG_THROWN_SPIN | FLAG_ANCHORED // FLAG_ANCHORED is because, for some reason, you can pick the fucking limbs up during spawn.
@@ -44,13 +41,9 @@
 	grasp_name = _grasp_name ? _grasp_name : name
 	grasp_plural = _grasp_plural
 	owner.limbs += src
-	contact_size = _size  // Reusing contact_size as an 'effective limb
-	weight = contact_size // size' for the purposes of bleeding etc.
-
 	if(_limb_id == BP_HEAD)
 		remains_type = owner.skull_type
 		remains_multi = FALSE
-
 	if(_parent)
 		parent = owner.GetLimb(_parent)
 		parent.children += src

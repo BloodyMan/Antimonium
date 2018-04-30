@@ -1,6 +1,11 @@
 /obj/item/weapon
 	default_material_path = /datum/material/metal/iron
+
+	var/strike_area // dm^3
 	var/datum/material/secondary_material
+
+/obj/item/weapon/GetContactArea()
+	return strike_area
 
 /obj/item/weapon/New(var/newloc, var/material_path, var/secondary_material_path = /datum/material/wood)
 	..(newloc, material_path)
